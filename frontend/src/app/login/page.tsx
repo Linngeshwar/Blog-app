@@ -33,7 +33,7 @@ export default function page(){
         const res = await login(data.username,data.password);
         const responseData = res?.data;
         if(res?.status === 200){
-            console.log("Logged in");
+            window.location.href = "/posts";
         }
         (document.getElementById("username") as HTMLParagraphElement).innerText = "";
         (document.getElementById("password") as HTMLParagraphElement).innerText = "";
