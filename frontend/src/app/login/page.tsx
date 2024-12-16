@@ -1,7 +1,7 @@
 'use client'
 import React from "react"
-import axios from "axios"
 import { login } from "../util/api"
+import { motion } from "framer-motion"
 
 export default function page(){
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,6 +30,10 @@ export default function page(){
             username: (form[0] as HTMLInputElement).value,
             password: (form[1] as HTMLInputElement).value,
         };
+        const isValid = validateData(data.username,data.password);
+        if(!isValid){
+            return;
+        }
         const res = await login(data.username,data.password);
         const responseData = res?.data;
         if(res?.status === 200){
@@ -60,17 +64,71 @@ export default function page(){
 
     return(
         <>
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="w-full max-w-xs">
-                    <h1 className="text-center mb-4">Login</h1>
-                    <form onSubmit={handleSubmit} className="flex flex-col justify-center">
-                        <input type="text" placeholder="Username" className="mb-2 p-2 border border-gray-300 rounded text-black" />
-                        <p id="username" className="text-red-600"></p>
-                        <input type="password" placeholder="Password" className="mb-2 p-2 border border-gray-300 rounded text-black" />
-                        <p id="password" className="text-red-600"></p>
-                        <button className="p-2 bg-blue-500 text-white rounded">Login</button>
-                    </form>
-                </div>
+            <div className="w-full max-w-xs">
+                <motion.h1 
+                                style={{cursor: "default"}}
+                                    className="text-center mb-4 font-rubik text-4xl font-medium w-fit place-self-center" 
+                                    initial={{y:-100, opacity: 0}}
+                                    animate={{y:0, opacity: 1}}
+                                    transition={{duration: 0.3}}
+                                    whileHover={{color: "#d16dff"}}
+                                >Log In</motion.h1>
+                <form onSubmit={handleSubmit} className="flex flex-col justify-center">
+                    <motion.input 
+                        type="text" 
+                        placeholder="Username" 
+                        className="p-2 border-[#d16dff] border-2 outline-none font-rubik bg-[#ecc4ff] rounded text-black placeholder:text-[#6e6c6c]" 
+                        autoComplete="off"
+                        whileFocus={{ scale: 1.05 , backgroundColor: "#efceff"}}
+                        initial={{x:-100, opacity: 0}}
+                        animate={{x:0, opacity: 1}}
+                        transition={{duration: 0.3}}
+                    />
+                    <motion.p 
+                        id="username" 
+                        className="text-red-600 h-5 text-[12px] font-rubik"
+                        initial={{x:-100, opacity: 0}}
+                        animate={{x:0, opacity: 1}}
+                    ></motion.p>
+                    <motion.input 
+                        type="password" 
+                        placeholder="Password" 
+                        className="p-2 border-[#d16dff] border-2 outline-none font-rubik bg-[#ecc4ff] rounded text-black placeholder:text-[#6e6c6c]" 
+                        autoComplete="off"
+                        whileFocus={{ scale: 1.05 , backgroundColor: "#efceff"}}
+                        initial={{x:100, opacity: 0}}
+                        animate={{x:0, opacity: 1}}
+                        transition={{duration: 0.3}}
+                    />
+                    <motion.p 
+                        id="password" 
+                        className="text-red-600 h-5 text-[12px] font-rubik"
+                        initial={{x:-100, opacity: 0}}
+                        animate={{x:0, opacity: 1}}
+                    ></motion.p>
+                    <motion.button 
+                        className="p-2 bg-[#d16dff] text-white rounded outline-none font-rubik"
+                        whileHover={{ scale: 1.05 , backgroundColor: "#cc5fff"}}
+                        whileFocus={{ scale: 1.05 , backgroundColor: "#cc5fff"}}
+                        whileTap={{ scale: 0.98 , backgroundColor: "#c445ff"}}
+                        initial={{y:100, opacity: 0}}
+                        animate={{y:0, opacity: 1}}
+                        transition={{duration: 0.3}}
+                    >Log In</motion.button>
+                    <motion.div
+                        initial={{y:100, opacity: 0}}
+                        animate={{y:0, opacity: 1}}
+                        transition={{duration: 0.3}}
+                    >
+                        <p className="text-black font-rubik text-sm mt-4">Don't have an account? 
+                            <motion.a href="/register" className="mx-3 p-1 text-[#cc5fff] rounded-md"
+                            whileHover={{ scale: 1.05 , backgroundColor: "#cc5fff", color: "white"}}
+                            transition={{duration: 0.5}}
+                        >Register
+                            </motion.a>
+                        </p>
+                    </motion.div>
+                </form>
             </div>
         </>
     )

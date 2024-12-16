@@ -44,7 +44,8 @@ export const login = async (username:string,password:string) => {
 
 export const register = async (username:string,password:string,email:string) => {
     try{
-        await api.post("register/",{username,password,email});
+        const response = await api.post("register/",{username,password,email});
+        return response;
     }catch(err){
         if (axios.isAxiosError(err)) {
             return err.response;
@@ -69,6 +70,42 @@ export const findUsername = async (id:number) => {
 export const getPosts = async () => {
     try{
         return await api.get("posts/");
+    }catch(err){
+        if (axios.isAxiosError(err)) {
+            return err.response;
+        } else {
+            console.log(err);
+        }
+    }
+}
+
+export const getUserPosts = async (id:number) => {
+    try{
+        return await api.get("posts/"+id+"/user_posts/");
+    }catch(err){
+        if (axios.isAxiosError(err)) {
+            return err.response;
+        } else {
+            console.log(err);
+        }
+    }
+}
+
+export const getTags = async () => {
+    try{
+        return await api.get("tags/");
+    }catch(err){
+        if (axios.isAxiosError(err)) {
+            return err.response;
+        } else {
+            console.log(err);
+        }
+    }
+}
+
+export const createPost = async (title:string,content:string,author:number,tags:string) => {
+    try{
+        return await api.post("posts/",{title,content,author,tags});
     }catch(err){
         if (axios.isAxiosError(err)) {
             return err.response;

@@ -25,7 +25,7 @@ export async function middleware(req: NextRequest, res: NextResponse, next: () =
         if(path === "/login" || path === "/register" || path === "/"){
             return NextResponse.redirect(new URL("/posts",req.nextUrl).toString());
         }
-    }else if(!token && path === "/posts" ){
+    }else if(!token && (path === "/posts" || path === "/my-posts") ){
         return NextResponse.redirect(new URL("/login",req.nextUrl).toString());
     }
 }

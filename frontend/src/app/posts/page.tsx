@@ -33,7 +33,7 @@ export default function page(){
     },[]);
 
     return(
-        <div>
+        <div className="w-full place-self-start">
             <AnimatePresence>
                 {posts.map((post) => (
                     <Post key={post.id} title={post.title} content={post.content} author={post.author} tags={post.tags} upvotes={post.upvotes} downvotes={post.downvotes}/>
