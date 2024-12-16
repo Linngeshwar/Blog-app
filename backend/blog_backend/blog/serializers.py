@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BlogPost
+from .models import BlogPost,Tag
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -7,15 +7,19 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ["id","content","title","created_at"]
+        fields = ["id", "content", "title", "created_at", "author", "tags", "upvotes", "downvotes"]
+        depth = 1
+        
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["name"]
         
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    password = serializers.CharField(write_only=True)
-    
     def validate(self,attrs):
-        if not User.objects.filter(username=attrs['username']).exists():
-            raise serializers.ValidationError({"username":"User Does not exist"})
-        return super().validate(attrs)
+        data = super().validate(attrs)
+        data["username"] = self.user.username
+        return data
         
 class UserRegistrationSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)
