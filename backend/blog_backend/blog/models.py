@@ -14,8 +14,6 @@ class BlogPost(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.CharField(max_length=100, default="Anonymous")
     tags = models.ManyToManyField(Tag)
-    upvotes = models.IntegerField(default=0)
-    downvotes = models.IntegerField(default=0)
     
     def __str__(self):
         all_details = """
@@ -30,4 +28,20 @@ class Comment(models.Model):
     name = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+class Upvote(models.Model):
+    post = models.ForeignKey(BlogPost,on_delete=models.CASCADE,related_name="upvotes")
+    user = models.CharField()
+    
+    def __str__(self):
+        string = f'''{self.user} upvoted {self.post}'''
+        return string
+    
+class Downvote(models.Model):
+    post = models.ForeignKey(BlogPost,on_delete=models.CASCADE,related_name="downvotes")
+    user = models.CharField()
+    
+    def __str__(self):
+        string = f'''{self.user} upvoted {self.post}'''
+        return string
     

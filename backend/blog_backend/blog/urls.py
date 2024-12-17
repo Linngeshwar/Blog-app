@@ -1,12 +1,14 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .views import BlogPostViewSet,UserRegistrationView,UserDetailView,CustomTokenObtainPairView,TagViewSet
+from .views import BlogPostViewSet,UserRegistrationView,UserDetailView,CustomTokenObtainPairView,TagViewSet,UpvoteViewSet,DownvoteViewSet
 
 router = DefaultRouter()
 router.register(r'posts',BlogPostViewSet)
 router.register(r'users',UserDetailView)
 router.register(r'tags',TagViewSet)
+router.register(r'upvotes',UpvoteViewSet)
+router.register(r'downvotes',DownvoteViewSet)
 
 
 urlpatterns = [

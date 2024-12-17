@@ -1,14 +1,38 @@
 from rest_framework import serializers
-from .models import BlogPost,Tag
+from .models import BlogPost,Tag,Upvote,Downvote
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class BlogSerializer(serializers.ModelSerializer):
+    upvoted = serializers.SerializerMethodField()
+    downvoted = serializers.SerializerMethodField()
+
     class Meta:
         model = BlogPost
-        fields = ["id", "content", "title", "created_at", "author", "tags", "upvotes", "downvotes"]
+        fields = ["id", "content", "title", "created_at", "author", "tags", "upvotes", "downvotes", "upvoted", "downvoted"]
+        extra_kwargs = {
+            "upvotes": {"read_only": True},
+            "downvotes": {"read_only": True},
+            "upvoted": {"read_only": True},
+            "downvoted": {"read_only": True},
+        }
         depth = 1
+
+    def get_upvoted(self, obj):
+        request = self.context.get('request')
+        bool = False
+        if request and request.user.is_authenticated:
+            bool = Upvote.objects.filter(post=obj, user=request.user).exists()
+        return bool
+
+    
+    def get_downvoted(self, obj):
+        request = self.context.get('request')
+        bool = False
+        if request and request.user.is_authenticated:
+            bool = Downvote.objects.filter(post=obj, user=request.user).exists()
+        return bool
         
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,4 +66,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id","username","email"]
+        
+class UpvoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Upvote
+        fields = "__all__"
+        
+class DownvoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Downvote
+        fields = "__all__"
+
 
