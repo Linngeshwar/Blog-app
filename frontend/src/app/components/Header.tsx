@@ -54,7 +54,7 @@ export default function Header(){
                         style={{cursor: "pointer"}}
                         whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
                         transition={{ duration: 0.5 }} 
-                        onClick={() => {document.location.href = "/posts"}}
+                        onClick={() => {document.location.href = "/"}}
                         >Blog Site
                     </motion.p>                    {pathName === "/login" && <RegisterButton />}
                     {pathName === "/register" && <LogInButton />}
@@ -91,8 +91,8 @@ export default function Header(){
                                 animate={{opacity: 1,x:0}}
                                 exit={{opacity: 0,x:100}}
                             >
-                                <motion.p className="text-black font-rubik place-self-center text-lg mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer"}}
+                                <motion.p className="font-rubik place-self-center text-lg mx-4 px-5 py-1 rounded-md"
+                                    style={{cursor: "pointer",color: "black"} }
                                     onClick={() => {document.location.href = "/profile"}}
                                     whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white"}}
                                     transition={{ duration: 0.2 }}
@@ -103,7 +103,7 @@ export default function Header(){
                                     Profile
                                 </motion.p>
                                 <motion.p className="text-black font-rubik text-lg place-self-center mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer"}}
+                                    style={{cursor: "pointer",color: "black"} }
                                     onClick={() => {document.location.href = "/create-post"}}
                                     whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white"}}
                                     transition={{ duration: 0.2, delay: 0.1 }}
@@ -114,7 +114,7 @@ export default function Header(){
                                     Create Post
                                 </motion.p>
                                 <motion.p className="text-black font-rubik text-lg place-self-center mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer"}}
+                                    style={{cursor: "pointer",color: "black"} }
                                     onClick={() => {document.location.href = "/my-posts"}}
                                     whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white"}}
                                     transition={{ duration: 0.2, delay: 0.2 }}
@@ -125,7 +125,7 @@ export default function Header(){
                                     My Posts
                                 </motion.p>
                                 <motion.p className="text-black font-rubik text-lg place-self-center mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer"}}
+                                    style={{cursor: "pointer",color: "black"} }
                                     onClick={logout}
                                     whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white" }}
                                     transition={{ duration: 0.2, delay: 0.3 }}

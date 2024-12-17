@@ -16,12 +16,29 @@ interface Post {
     }[];
     upvotes: number;
     downvotes: number;
+    upvoted: boolean;
+    downvoted: boolean;
 }
 
 export default function page(){
 
     const [posts,setPosts] = useState<Post[]>([]);  
+    const [userID,setUserID] = useState(0);
     useEffect(() => {
+        if (typeof document !== 'undefined') {
+            const token = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("token="));
+            if (token) {
+                const jwt = token.split("=")[1];
+                const base64Url = jwt.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                const decodedToken = JSON.parse(jsonPayload);
+                const userID = decodedToken.user_id;
+                setUserID(userID);
+            }
+        }
         const fetchPosts = async () => {
             const response = await getPosts();
             return response?.data;
@@ -36,11 +53,18 @@ export default function page(){
         <div className="w-full place-self-start">
             <AnimatePresence>
                 {posts.map((post) => (
-                    <Post key={post.id} title={post.title} content={post.content} author={post.author} tags={post.tags} upvotes={post.upvotes} downvotes={post.downvotes}/>
+                    <Post 
+                        id={post.id} 
+                        title={post.title} 
+                        content={post.content} 
+                        author={post.author} 
+                        tags={post.tags} 
+                        upvotes={post.upvotes} 
+                        downvotes={post.downvotes} 
+                        upvoted={post.upvoted}
+                        downvoted={post.downvoted}
+                    />
                 ))}
-                {/* <Post key={4} title="big title which definitely is so big that it overflows to the next line"
-                        content="lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio nec nunc ultricies ultricies lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio nec nunc ultricies ultricies"
-                        author="author" tags={["tag1","tag2"]} upvotes={0} downvotes={0}/> */}
             </AnimatePresence>
         </div>
     )

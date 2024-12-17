@@ -147,7 +147,7 @@ export default function page(){
                     initial={{y:100, opacity: 0}}
                     animate={{y:0, opacity: 1}}
                     transition={{duration: 0.3}}
-                >Log In</motion.button>
+                >Create Post</motion.button>
             </motion.form>
         </motion.div>
     )

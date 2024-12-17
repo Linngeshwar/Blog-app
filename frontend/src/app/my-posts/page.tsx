@@ -16,6 +16,8 @@ interface Post {
     }[];
     upvotes: number;
     downvotes: number;
+    upvoted: boolean;
+    downvoted: boolean;
 }
 
 export default function Page() {
@@ -42,12 +44,15 @@ export default function Page() {
     useEffect(() => {
         const fetchPosts = async () => {
             const response = await getUserPosts(userID);
+            const postData = response?.data;
+
+            console.log('Posts:', postData);
+            console.log('Unique IDs:', new Set(postData.map((post: Post) => post.id)).size);
             return response?.data;
         };
         if (userID !== 0) {
             fetchPosts().then((data) => {
                 setPosts(data);
-                console.log(data);
             });
         }
     }, [userID]);
@@ -55,8 +60,20 @@ export default function Page() {
     return (
         <div className="w-full place-self-start">
             <AnimatePresence>
-                {posts.map((post) => (
-                    <Post key={post.id} title={post.title} content={post.content} author={post.author} tags={post.tags} upvotes={post.upvotes} downvotes={post.downvotes} />
+                {
+                posts.map((post, index) => (
+                    <Post 
+                        key={post.id}
+                        id={post.id} 
+                        title={post.title} 
+                        content={post.content} 
+                        author={post.author} 
+                        tags={post.tags} 
+                        upvotes={post.upvotes} 
+                        downvotes={post.downvotes}
+                        upvoted={post.upvoted}
+                        downvoted={post.downvoted}
+                    />
                 ))}
             </AnimatePresence>
         </div>

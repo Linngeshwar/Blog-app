@@ -1,31 +1,57 @@
-import { NextRequest,NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { jwtDecode } from "jwt-decode";
 import { newToken } from "./app/util/api";
 
-export async function middleware(req: NextRequest, res: NextResponse, next: () => void) {
+export async function middleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
     const refresh = req.cookies.get("refresh")?.value;
     const path = req.nextUrl.pathname;
-    //token available:
-    if(token){
-        const decoded = jwtDecode(token);
-        //token has expired:
-        if((decoded.exp && decoded.exp < Date.now() / 1000) && refresh){
-            try{
-                await newToken(refresh);
-            }catch(err){
-                console.log(err);
+
+    // Protected routes that require authentication
+    const protectedRoutes = ['/posts', '/my-posts', '/profile', '/create-post'];
+    
+    // Routes that should redirect to posts if already authenticated
+    const authRoutes = ['/', '/login', '/register'];
+
+    try {
+        // If token exists, check its validity
+        if (token) {
+            const decoded = jwtDecode(token);
+            const isTokenExpired = decoded.exp && decoded.exp < Date.now() / 1000;
+
+            // Token expired and refresh token available
+            if (isTokenExpired && refresh) {
+                try {
+                    await newToken(refresh);
+                } catch (err) {
+                    // If token refresh fails, redirect to login
+                    return NextResponse.redirect(new URL("/login", req.url));
+                }
+            } 
+            // Token expired and no refresh token
+            else if (isTokenExpired && !refresh) {
+                const response = NextResponse.redirect(new URL("/login", req.url));
+                response.cookies.delete("token");
+                return response;
             }
-        }else if((decoded.exp && decoded.exp < Date.now() / 1000) && !refresh){
-            const response = NextResponse.redirect(new URL("/login", req.nextUrl).toString());
-            response.cookies.delete("token");
-            return response;
+
+            // Redirect authenticated users from auth routes to posts
+            if (authRoutes.includes(path)) {
+                return NextResponse.redirect(new URL("/posts", req.url));
+            }
+        } 
+        // No token for protected routes
+        else if (protectedRoutes.includes(path)) {
+            return NextResponse.redirect(new URL("/login", req.url));
         }
-        //token has not expired and trying to access login or register page:
-        if(path === "/login" || path === "/register" || path === "/"){
-            return NextResponse.redirect(new URL("/posts",req.nextUrl).toString());
-        }
-    }else if(!token && (path === "/posts" || path === "/my-posts") ){
-        return NextResponse.redirect(new URL("/login",req.nextUrl).toString());
+    } catch (error) {
+        // Handle any unexpected errors
+        console.error("Middleware error:", error);
+        return NextResponse.redirect(new URL("/login", req.url));
     }
+}
+
+// Specify which routes this middleware should run on
+export const config = {
+    matcher: ['/', '/login', '/register', '/posts', '/my-posts', '/profile', '/create-post']
 }
