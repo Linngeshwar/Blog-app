@@ -22,22 +22,26 @@ class BlogSerializer(serializers.ModelSerializer):
     def get_upvoted(self, obj):
         request = self.context.get('request')
         bool = False
+        # print(request.user)
         if request and request.user.is_authenticated:
             bool = Upvote.objects.filter(post=obj, user=request.user).exists()
+            # print(Upvote.objects.filter(post=obj, user=request.user))
         return bool
 
     
     def get_downvoted(self, obj):
         request = self.context.get('request')
         bool = False
+        # print(request.user)
         if request and request.user.is_authenticated:
             bool = Downvote.objects.filter(post=obj, user=request.user).exists()
+            # print(Downvote.objects.filter(post=obj, user=request.user))
         return bool
         
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ["name"]
+        fields = ["name","id"]
         
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self,attrs):
@@ -56,7 +60,6 @@ class UserRegistrationSerializer(serializers.Serializer):
         if User.objects.filter(email=attrs["email"]).exists():
             raise serializers.ValidationError({"email":"Email already exists"})
         return attrs
-    
     
     def create(self,validated_data):
         user = User.objects.create_user(validated_data["username"],validated_data["email"],validated_data["password"])

@@ -9,6 +9,7 @@ from .serializers import BlogSerializer,UserRegistrationSerializer,UserDetailSer
 from .serializers import UpvoteSerializer,DownvoteSerializer
 from django.contrib.auth.models import User
 from .permissions import IsAuthor
+from rest_framework.permissions import AllowAny
 # Create your views here.\
     
 class UpvoteViewSet(ModelViewSet):
@@ -16,7 +17,7 @@ class UpvoteViewSet(ModelViewSet):
     queryset = Upvote.objects.all()
     
     def list(self,request):
-        queryset = Upvote.objects.all()
+        queryset = Upvote.objects.filter(user=request.user,post=request.data.get("post"))
         serializer = UpvoteSerializer(queryset,many=True)
         return Response(serializer.data,status=200)
     
@@ -26,6 +27,28 @@ class UpvoteViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data,status=201)
         return Response(serializer.errors,status=400)
+    
+    # @action(detail=False, methods=['delete'])
+    # def delete_upvote(self, request):
+    #     post_id = request.data.get("post")
+    #     user = request.data.get("user")
+        
+    #     try:
+    #         upvote = Upvote.objects.get(user=user, post_id=post_id)
+    #         upvote.delete()
+    #         return Response("Upvote deleted", status=204)
+    #     except Upvote.DoesNotExist:
+    #         return Response({"error": "Upvote not found"}, status=404)
+        
+    @action(detail=False, methods=['post'])
+    def del_upvote(self, request, *args, **kwargs):
+        queryset = Upvote.objects.filter(user=request.user, post=request.data.get("post"))
+        try:
+            upvote = queryset.get()
+            upvote.delete()
+            return Response("Upvote deleted", status=204)
+        except Upvote.DoesNotExist:
+            return Response({"error": "Upvote not found"}, status=404)
 
 class DownvoteViewSet(ModelViewSet):
     serializer_class = DownvoteSerializer
@@ -42,11 +65,37 @@ class DownvoteViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data,status=201)
         return Response(serializer.errors,status=400)
+    
+    # @action(detail=False, methods=['delete'])
+    # def delete_downvote(self, request):
+    #     post_id = request.data.get("post")
+    #     user = request.data.get("user")
+        
+    #     try:
+    #         downvote = Downvote.objects.get(user=user, post_id=post_id)
+    #         downvote.delete()
+    #         return Response("Downvote deleted", status=204)
+    #     except Downvote.DoesNotExist:
+    #         return Response({"error": "Downvote not found"}, status=404)
+    
+    @action(detail=False, methods=['post'])
+    def del_downvote(self,request):
+        queryset = Downvote.objects.filter(user=request.user,post=request.data.get("post"))
+        try:
+            downvote = queryset.get()
+            downvote.delete()
+            return Response("Downvote deleted",status=204)
+        except Downvote.DoesNotExist:
+            return Response({"error":"Downvote not found"},status=404)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
     serializer_class = CustomTokenObtainPairSerializer
 
 class UserRegistrationView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
     serializer_class = UserRegistrationSerializer
     
 class TagViewSet(ModelViewSet):
@@ -122,6 +171,21 @@ class BlogPostViewSet(ModelViewSet):
             return Response({"error": "Author not found"}, status=404)
         
         posts = BlogPost.objects.filter(author=author)
-        serializer = BlogSerializer(posts, many=True)
+        serializer = BlogSerializer(posts, many=True, context={"request": request})
+        for s in serializer.data:
+            s["upvotes"] = Upvote.objects.filter(post=s["id"]).count()
+            s["downvotes"] = Downvote.objects.filter(post=s["id"]).count()
         return Response(serializer.data, status=200)
     
+    @action(detail=True, methods=['get'])
+    def get_post(self, request, pk=None):
+        try:
+            post = BlogPost.objects.get(pk=pk)
+        except BlogPost.DoesNotExist:
+            return Response({"error": "Post not found"}, status=404)
+        serializer = BlogSerializer(post, context={"request": request})
+        data = serializer.data
+        data["upvotes"] = Upvote.objects.filter(post=pk).count()
+        data["downvotes"] = Downvote.objects.filter(post=pk).count()
+        print(data["upvotes"])
+        return Response(data, status=200)

@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
 
     // Protected routes that require authentication
-    const protectedRoutes = ['/posts', '/my-posts', '/profile', '/create-post'];
+    const protectedRoutes = ['/','/posts', '/my-posts', '/profile', '/create-post'];
     
     // Routes that should redirect to posts if already authenticated
     const authRoutes = ['/', '/login', '/register'];
@@ -18,6 +18,19 @@ export async function middleware(req: NextRequest) {
         if (token) {
             const decoded = jwtDecode(token);
             const isTokenExpired = decoded.exp && decoded.exp < Date.now() / 1000;
+             // Token expired and refresh token also expired
+            if (isTokenExpired && refresh) {
+                console.log("Token and refresh token expired");
+                const decodedRefresh = jwtDecode(refresh);
+                const isRefreshExpired = decodedRefresh.exp && decodedRefresh.exp < Date.now() / 1000;
+
+                if (isRefreshExpired) {
+                    const response = NextResponse.redirect(new URL("/login", req.url));
+                    response.cookies.delete("token");
+                    response.cookies.delete("refresh");
+                    return response;
+                }
+            }
 
             // Token expired and refresh token available
             if (isTokenExpired && refresh) {

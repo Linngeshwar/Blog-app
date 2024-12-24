@@ -212,3 +212,65 @@ export const deletePost = async (id:number) => {
         }
     }
 }
+
+export const upvotePost = async (post:number,user:string) => {
+    try{
+        return await api.post("upvotes/",{post,user});
+    }catch(err){
+        if(axios.isAxiosError(err)){
+            return err.response;
+        }else{
+            console.log(err);
+        }
+    }
+}
+
+
+
+export const downvotePost = async (post:number,user:string) => {
+    try{
+        return await api.post("downvotes/",{post,user});
+    }catch(err){
+        if(axios.isAxiosError(err)){
+            return err.response;
+        }else{
+            console.log(err);
+        }
+    }
+}
+
+export const deleteUpvote = async (post:number,user:string) => {
+    try{ 
+        await api.post("upvotes/del_upvote/", {post,user});
+    }catch(err){
+        if(axios.isAxiosError(err)){
+            return err.response;
+        }else{
+            console.log(err);
+        }
+    }
+}
+
+export const deleteDownvote = async (post:number,user:string) => {
+    try{
+        await api.post("downvotes/del_downvote/",{post,user});
+    }catch(err){
+        if(axios.isAxiosError(err)){
+            return err.response;
+        }else{
+            console.log(err);
+        }
+    }   
+}
+
+export const fetchPost = async (id:number) => {
+    try{
+        return await api.get("posts/"+id+"/get_post/");
+    }catch(err){
+        if(axios.isAxiosError(err)){
+            return err.response;
+        }else{
+            console.log(err);
+        }
+    }
+}

@@ -45,3 +45,4 @@ class Downvote(models.Model):
         string = f'''{self.user} upvoted {self.post}'''
         return string
     
+    

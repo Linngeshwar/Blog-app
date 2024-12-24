@@ -6,6 +6,7 @@ import { findUsername } from "../util/api";
 import { motion,AnimatePresence } from "framer-motion";
 import LogInButton from "./LogInButton";
 import RegisterButton from "./RegisterButton";
+import { jwtDecode } from "jwt-decode";
 
 export default function Header(){
     const [isAuthenticated,setIsAuthenticated] = useState(false);
@@ -18,14 +19,8 @@ export default function Header(){
         if (typeof document !== 'undefined') {
             const token = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("token="));
             if (token) {
-                const jwt = token.split("=")[1];
-                const base64Url = jwt.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                const decodedToken = JSON.parse(jsonPayload);
-                const userID = decodedToken.user_id;
+                const decodedToken = jwtDecode(token);
+                const userID = (decodedToken as { user_id: number }).user_id;
                 const getUsername = async () => {
                     const response = await findUsername(userID);
                     setUsername(response?.data.username);
@@ -47,110 +42,80 @@ export default function Header(){
         document.location.href = "/login";
     }
 
+    const navItems = [
+        {name: "Profile",link: "/profile"},
+        {name: "Create Post",link: "/create-post"},
+        {name: "My Posts",link: "/my-posts"},
+        {name: "Log Out",link: logout}
+    ]
+
     return(<>
             {!isAuthenticated ? (
-                <div className="flex flex-row justify-between p-4">
-                    <motion.p className="text-5xl font-semibold font-rubik mt-2 ml-2"
+                <div className="flex flex-row justify-between p-4 mb-2">
+                    <motion.p className="text-5xl font-semibold font-rubik mt-2 ml-4"
                         style={{cursor: "pointer"}}
                         whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
                         transition={{ duration: 0.5 }} 
                         onClick={() => {document.location.href = "/"}}
                         >Blog Site
-                    </motion.p>                    {pathName === "/login" && <RegisterButton />}
+                    </motion.p>                    
+                    {pathName === "/login" && <RegisterButton />}
                     {pathName === "/register" && <LogInButton />}
                     {pathName === "/" && 
-                        <div className="flex flex-row">
+                        <div className="flex flex-row gap-3">
                             <LogInButton /><RegisterButton />
                         </div>
                     }
                 </div>
             ) : (
-                <div className="flex flex-row p-4 justify-between">
-                    <motion.p className="text-5xl font-semibold font-rubik mt-2 ml-2"
-                        style={{cursor: "pointer"}}
-                        whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
-                        transition={{ duration: 0.5 }} 
-                        onClick={() => {document.location.href = "/posts"}}
-                        >Blog Site
-                    </motion.p>  
-                    <div className="flex flex-row"
-                        onMouseOver={() => {if(showOptions){setShowOptions(true)}}}
-                        onMouseOut={() => setShowOptions(false)}
-                        onMouseEnter={() => {if(showOptions){setShowOptions(true)}}}
-                        onMouseLeave={() => setShowOptions(false)}
+                <div className="flex flex-row p-4 justify-between mb-2">
+                    <AnimatePresence>
+                        <motion.p className="text-5xl font-semibold font-rubik mt-2 ml-4"
+                            style={{cursor: "pointer"}}
+                            whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
+                            transition={{ duration: 0.5 }} 
+                            onClick={() => {document.location.href = "/posts"}}
+                            >Blog Site
+                        </motion.p>  
+                    </AnimatePresence>
+                    <motion.nav className="flex flex-row w-[50rem] bg-[#f0d0ff] rounded-lg py-2 px-20 relative top-0 -left-5"
+                        transition={{ duration: 0.5 }}
+                        initial={{opacity: 0,y: -100}}
+                        animate={{opacity: 1,y: 0}}
+                        exit={{opacity: 0,y:-100}}
                     >
-                        <AnimatePresence>
-                        {showOptions &&(
-                            <motion.div className="flex flex-row bg-[#f0d0ff] rounded-lg py-2 px-10 relative top-0 -left-5"
-                                onMouseOver={() => setShowOptions(true)}
-                                onMouseOut={() => setShowOptions(false)}
-                                onMouseEnter={() => setShowOptions(true)}
-                                onMouseLeave={() => setShowOptions(false)}
-                                transition={{ duration: 0.5 }}
-                                initial={{opacity: 0,x:100}}
-                                animate={{opacity: 1,x:0}}
-                                exit={{opacity: 0,x:100}}
-                            >
-                                <motion.p className="font-rubik place-self-center text-lg mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer",color: "black"} }
-                                    onClick={() => {document.location.href = "/profile"}}
+                        <motion.ul className="flex flex-wrap gap-4">
+                            {navItems.map((item) => (
+                                <motion.li className="text-black font-rubik text-lg place-self-center justify-center whitespace-nowrap mx-4 px-5 py-[2px] rounded-md "
+                                    style={{cursor: "pointer",color: "black",transformOrigin:"center"} }
+                                    onClick={() => {
+                                        if (typeof item.link === 'string') {
+                                            document.location.href = item.link;
+                                        } else {
+                                            item.link();
+                                        }
+                                    }}
                                     whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white"}}
                                     transition={{ duration: 0.2 }}
                                     initial={{x: 100,opacity: 0}}
                                     animate={{x: 0,opacity: 1}}
                                     exit={{x: 100,opacity: 0}}
                                 >
-                                    Profile
-                                </motion.p>
-                                <motion.p className="text-black font-rubik text-lg place-self-center mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer",color: "black"} }
-                                    onClick={() => {document.location.href = "/create-post"}}
-                                    whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white"}}
-                                    transition={{ duration: 0.2, delay: 0.1 }}
-                                    initial={{x: 100,opacity: 0}}
-                                    animate={{x: 0,opacity: 1}}
-                                    exit={{x: 100,opacity: 0}}
-                                >
-                                    Create Post
-                                </motion.p>
-                                <motion.p className="text-black font-rubik text-lg place-self-center mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer",color: "black"} }
-                                    onClick={() => {document.location.href = "/my-posts"}}
-                                    whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white"}}
-                                    transition={{ duration: 0.2, delay: 0.2 }}
-                                    initial={{x: 100,opacity: 0}}
-                                    animate={{x: 0,opacity: 1}}
-                                    exit={{x: 100,opacity: 0}}
-                                >
-                                    My Posts
-                                </motion.p>
-                                <motion.p className="text-black font-rubik text-lg place-self-center mx-4 px-5 py-1 rounded-md"
-                                    style={{cursor: "pointer",color: "black"} }
-                                    onClick={logout}
-                                    whileHover={{ scale: 1.1 ,color: "white", backgroundColor: "#cc5fff",border: "2px solid white" }}
-                                    transition={{ duration: 0.2, delay: 0.3 }}
-                                    initial={{x: 100,opacity: 0}}
-                                    animate={{x: 0,opacity: 1}}    
-                                    exit={{x: 100,opacity: 0}}
-                                >
-                                    Log Out
-                                </motion.p>
-                            </motion.div>
-                        )}
-                        </AnimatePresence>
+                                    {item.name}
+                                </motion.li>
+                            ))}
+                        </motion.ul>
+                    </motion.nav>
+                    <AnimatePresence>
                         <motion.p className="text-2xl font-semibold font-rubik place-self-center pr-4"
                             style={{cursor: "pointer"}}
                             whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
                             onClick={() => {document.location.href = "/profile"}}
                             transition={{ duration: 0.3 }}
-                            onMouseOver={() => setShowOptions(true)}
-                            onMouseOut={() => setShowOptions(false)}
-                            onMouseEnter={() => setShowOptions(true)}
-                            onMouseLeave={() => setShowOptions(false)}
                         >
                             {username.charAt(0).toUpperCase() + username.slice(1)} 
                         </motion.p>
-                    </div>
+                    </AnimatePresence>
                 </div>
             )
             }

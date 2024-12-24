@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Header from "./components/Header";
+import Filter from "./components/Filter";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Blog App",
   description: "A blog app",
 };
+
 
 export default function RootLayout({
   children,
@@ -22,6 +24,7 @@ export default function RootLayout({
       >
         <Header />
         <main className="flex-grow flex items-center justify-center">
+          <Filter /> 
           {children}
         </main>
       </body>

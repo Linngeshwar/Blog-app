@@ -28,6 +28,19 @@ export default function EditPost(Post: Post){
     fetchTags().then((data) => {
         setTags(data);
     }); 
+        addEventListener("keydown", (e) => {
+            if(e.key === "Escape"){
+                Post.handleEditPost(false);
+            }
+        });
+
+        return () => {
+            removeEventListener("keydown", (e) => {
+                if(e.key === "Escape"){
+                    Post.handleEditPost(false);
+                }
+            });
+        }
     }, []);
 
 
@@ -83,6 +96,7 @@ export default function EditPost(Post: Post){
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={(e) => {Post.handleEditPost(false)}}
         >
             <motion.div className="w-full max-w-xl">
                 <motion.div className="font-rubik text-2xl place-self-end bg-[#ecc4ff] z-20 w-fit px-2 mb-1 rounded-sm outline-none"
@@ -101,6 +115,7 @@ export default function EditPost(Post: Post){
                         initial={{scale: 1.3,opacity: 0}}
                         animate={{scale: 1,opacity: 1}}
                         exit={{scale: 0.7,opacity: 0}}
+                        onClick={(e) => e.stopPropagation()}
                     >Title:</motion.label>
                     <motion.input 
                         type="text" 
@@ -112,6 +127,7 @@ export default function EditPost(Post: Post){
                         animate={{x:0, opacity: 1}}
                         exit={{x:-100, opacity: 0}}
                         transition={{duration: 0.3}}
+                        onClick={(e) => e.stopPropagation()}
                     />
                     <motion.p 
                         id="title" 
@@ -119,12 +135,14 @@ export default function EditPost(Post: Post){
                         initial={{x:-100, opacity: 0}}
                         animate={{x:0, opacity: 1}}
                         exit={{x:-100, opacity: 0}}
+                        onClick={(e) => e.stopPropagation()}
                     ></motion.p>
                     <motion.label
                         className="text-black font-rubik bg-[#ecc4ff] z-20 w-fit px-2 mb-1 rounded-sm"
                         initial={{scale: 1.3,opacity: 0}}
                         animate={{scale: 1,opacity: 1}}
                         exit={{scale: 0.7,opacity: 0}}
+                        onClick={(e) => e.stopPropagation()}
                     >Content:</motion.label>
                     <motion.textarea 
                         // placeholder="Content" 
@@ -136,6 +154,7 @@ export default function EditPost(Post: Post){
                         animate={{x:0, opacity: 1}}
                         exit={{x:100, opacity: 0}}
                         transition={{duration: 0.3}}
+                        onClick={(e) => e.stopPropagation()}
                     />
                     <motion.p 
                         id="content" 
@@ -143,12 +162,14 @@ export default function EditPost(Post: Post){
                         initial={{x:100, opacity: 0}}
                         animate={{x:0, opacity: 1}}
                         exit={{x:100, opacity: 0}}
+                        onClick={(e) => e.stopPropagation()}
                     ></motion.p>
                     <motion.label
                         className="text-black font-rubik bg-[#ecc4ff] z-20 w-fit px-2 mb-1 rounded-sm"
                         initial={{scale: 1.3,opacity: 0}}
                         animate={{scale: 1,opacity: 1}}
                         exit={{scale: 0.7,opacity: 0}}
+                        onClick={(e) => e.stopPropagation()}
                     >Tags:</motion.label>
                     <motion.select
                         className="p-2 border-[#d16dff] border-2 outline-none font-rubik bg-[#ecc4ff] rounded text-black"
@@ -158,13 +179,14 @@ export default function EditPost(Post: Post){
                         transition={{ duration: 0.3 }}
                         exit={{x: -100, opacity: 0}}
                         multiple
-                        
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {tags.map((tag, index) => (
                             <motion.option 
                                 key={index} 
                                 value={tag.name}
                                 selected={Post.tags.some(postTag => postTag.name === tag.name)}
+                                onClick={(e) => e.stopPropagation()}
                             >
                                 {tag.name}
                             </motion.option>
@@ -176,6 +198,7 @@ export default function EditPost(Post: Post){
                         initial={{ x: -100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{x: -100, opacity: 0}}
+                        onClick={(e) => e.stopPropagation()}
                     ></motion.p>
                     <motion.button 
                         className="p-2 bg-[#d16dff] text-white rounded outline-none font-rubik"
@@ -186,6 +209,7 @@ export default function EditPost(Post: Post){
                         animate={{y:0, opacity: 1}}
                         exit={{y:100, opacity: 0}}
                         transition={{duration: 0.3}}
+                        onClick={(e) => e.stopPropagation()}
                     >Update Details</motion.button>
                 </motion.form>
             </motion.div>

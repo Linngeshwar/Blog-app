@@ -3,6 +3,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import {motion} from "framer-motion";
 import { getTags,createPost } from "../util/api";
+import { jwtDecode } from "jwt-decode";
 
 interface Tag {
     name : string;
@@ -15,14 +16,8 @@ export default function page(){
         if (typeof document !== 'undefined') {
             const token = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("token="));
             if (token) {
-                const jwt = token.split("=")[1];
-                const base64Url = jwt.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                const decodedToken = JSON.parse(jsonPayload);
-                const userID = decodedToken.user_id;
+                const decodedToken = jwtDecode(token);
+                const userID = (decodedToken as { user_id: number }).user_id;
                 setUserID(userID);
         }
         const fetchTags = async () => {
