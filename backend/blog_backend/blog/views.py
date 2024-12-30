@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import action
 from rest_framework import generics
-from .models import BlogPost,Tag,Upvote,Downvote
-from .serializers import BlogSerializer,UserRegistrationSerializer,UserDetailSerializer,CustomTokenObtainPairSerializer,TagSerializer
+from .models import BlogPost,Tag,Upvote,Downvote,Comment
+from .serializers import BlogSerializer,UserRegistrationSerializer,UserDetailSerializer,CustomTokenObtainPairSerializer,TagSerializer,CommentSerializer
 from .serializers import UpvoteSerializer,DownvoteSerializer
 from django.contrib.auth.models import User
 from .permissions import IsAuthor
@@ -107,6 +107,43 @@ class TagViewSet(ModelViewSet):
         serializer = TagSerializer(queryset,many=True)
         return Response(serializer.data,status=200)
     
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentSerializer
+    queryset = Comment.objects.all()
+    
+    def list(self,request):
+        queryset = Comment.objects.all()
+        serializer = CommentSerializer(queryset,many=True)
+        return Response(serializer.data,status=200)
+    
+    def create(self,request):
+        serializer = CommentSerializer(data=request.data)
+        userID = request.data.get("user")
+        username = User.objects.get(pk=userID).username
+        serializer.initial_data["user"] = username
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=201)
+        return Response(serializer.errors,status=400)
+    
+    def update(self,request,pk=None):
+        try:
+            queryset = Comment.objects.all()
+            comment = queryset.get(pk=pk)
+        except Comment.DoesNotExist:
+            return Response({"error":"Comment not found"},status=404)
+        serializer = CommentSerializer(comment,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=200)
+        return Response(serializer.errors,status=400)
+    
+    def destroy(self,request,pk=None):
+        queryset = Comment.objects.all()
+        comment = queryset.get(pk=pk)
+        comment.delete()
+        return Response("Comment deleted",status=204)
+
 class UserDetailView(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
@@ -189,3 +226,4 @@ class BlogPostViewSet(ModelViewSet):
         data["downvotes"] = Downvote.objects.filter(post=pk).count()
         print(data["upvotes"])
         return Response(data, status=200)
+    

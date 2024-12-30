@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BlogPost,Tag,Upvote,Downvote
+from .models import BlogPost,Tag,Upvote,Downvote,Comment
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -42,6 +42,12 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ["name","id"]
+        
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+        
         
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self,attrs):
