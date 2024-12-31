@@ -16,11 +16,13 @@ export default function Filter() {
     const [showOptions, setShowOptions] = useState(false);
     const [tags, setTags] = useState<Tag[]>([]);
     const [selectedTags, setSelectedTags] = useState<number[]>([]);
-    const [keyword, setKeyword] = useState("");
+    const [keywords, setKeywords] = useState("");
     const pathName = usePathname();
     const searchParams = useSearchParams();
     const QueryTags = searchParams.get("tags");
     const currentTags = QueryTags ? QueryTags.split(",").map(Number) : [];
+    const keywordsString = searchParams.get("keywords");
+    const keywordsQuery = keywordsString ? keywordsString.split(/\s+/) : [];
     
     const dropDownVariantsImg = {
         open: { rotate: 180, x: 8, y: 2 },
@@ -88,11 +90,21 @@ export default function Filter() {
 
     const filterPosts = () => {
         if (selectedTags.length === 0) {
-            document.location.href = "/posts";
+            if(keywords === ""){
+                document.location.href = "/posts";
+                return;
+            }else{
+                document.location.href = `/posts?keywords=${keywords}`;
+                return;
+            }
+        }
+        if(keywords === ""){
+            const tags = selectedTags.join(",");
+            document.location.href = `/posts?tags=${tags}`;
             return;
         }
         const tags = selectedTags.join(",");
-        document.location.href = `/posts?tags=${tags}`;
+        document.location.href = `/posts?tags=${tags}&keywords=${keywords}`;
     }
 
     return (
@@ -167,9 +179,10 @@ export default function Filter() {
                                 >
                                     Keyword:
                                 </motion.label>
-                                <motion.input type="text" className="w-[90%] p-2 rounded-md place-self-center outline-none font-rubik" 
+                                <motion.input type="text" className="w-[90%] p-2 rounded-sm place-self-center outline-none font-rubik " 
                                     variants={itemVariants}
-                                    onChange={(e) => setKeyword(e.target.value)}
+                                    onChange={(e) => setKeywords(e.target.value)}
+                                    defaultValue={keywordsQuery.join(" ")}
                                 />
                                 <motion.button
                                     className="bg-[#ecc4ff] w-[95%] m-2 py-2 px-4 rounded-md place-self-center outline-none font-rubik transition-colors duration-300 ease-in-out font-semibold hover:bg-[#d16dff] hover:text-white"

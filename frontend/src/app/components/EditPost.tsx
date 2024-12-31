@@ -100,7 +100,7 @@ export default function EditPost(Post: Post){
         >
             <motion.div className="w-full max-w-xl">
                 <motion.div className="font-rubik text-2xl place-self-end bg-[#ecc4ff] z-20 w-fit px-2 mb-1 rounded-sm outline-none"
-                    style={{cursor: "pointer"}}
+                         style={{cursor: "pointer"}}
                     onClick={() => {Post.handleEditPost(false)}}
                     initial={{x:100, opacity: 0}}
                     animate={{x:0, opacity: 1}}

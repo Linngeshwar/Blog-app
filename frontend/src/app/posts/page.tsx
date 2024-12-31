@@ -27,8 +27,11 @@ export default function page(props: {tags: string}){
     const searchParams = useSearchParams();
     const tagString = searchParams.get("tags");
     const tags = tagString ? tagString.split(",").map(Number) : [];
-    const titleString = searchParams.get("title");
-    const title = titleString ? titleString : "";
+    const keywordsString = searchParams.get("keywords");
+    const keywords = keywordsString ? keywordsString.split(/\s+/) : [];
+    keywords.forEach((keyword, index) => {
+        keyword.toLowerCase();
+    });
     const [posts,setPosts] = useState<Post[]>([]);  
     // const [userID,setUserID] = useState(0);
     const [username,setUsername] = useState("");
@@ -49,12 +52,14 @@ export default function page(props: {tags: string}){
             const response = await getPosts();
             return response?.data;
         };
-        if(!tags){
+        if(tags.length === 0 && keywords.length === 0){
+            // console.log('No tags');
             fetchPosts().then((data) => {
                 setPosts(data);
                 console.log(data);
             });
-        }else{
+        }else if(tags && keywords.length === 0){
+            // console.log('Tags');
             fetchPosts().then((data) => {
                 const filteredPosts = data.filter((post: Post) => {
                     return tags.every((tag) => 
@@ -65,7 +70,31 @@ export default function page(props: {tags: string}){
                 });
                 setPosts(filteredPosts);
             });
-        }
+        }else if(tags.length === 0 && keywords){
+            // console.log('Keywords');
+            fetchPosts().then((data) => {
+                const filteredPosts = data.filter((post: Post) => {
+                    return keywords.every((keyword) => 
+                        post.title.toLowerCase().includes(keyword) || post.content.toLowerCase().includes(keyword)
+                    );
+                });
+                setPosts(filteredPosts);
+            });
+        }else if(tags && keywords){
+            // console.log('Tags and Keywords'); 
+            fetchPosts().then((data) => {
+                const filteredPosts = data.filter((post: Post) => {
+                    return tags.every((tag) => 
+                        post.tags.some((postTag) => 
+                            postTag.id === tag
+                        )
+                    ) && keywords.every((keyword) => 
+                        post.title.toLowerCase().includes(keyword) || post.content.toLowerCase().includes(keyword)
+                    );
+                });
+                setPosts(filteredPosts);
+            }
+        )}
     },[]);
 
     return(

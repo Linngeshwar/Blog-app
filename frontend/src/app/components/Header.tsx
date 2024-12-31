@@ -43,7 +43,6 @@ export default function Header(){
     }
 
     const navItems = [
-        {name: "Profile",link: "/profile"},
         {name: "Create Post",link: "/create-post"},
         {name: "My Posts",link: "/my-posts"},
         {name: "Log Out",link: logout}
@@ -78,7 +77,7 @@ export default function Header(){
                             >Blog Site
                         </motion.p>  
                     </AnimatePresence>
-                    <motion.nav className="flex flex-row w-[50rem] bg-[#f0d0ff] rounded-lg py-2 px-20 relative top-0 -left-5"
+                    <motion.nav className="flex flex-row  bg-[#f0d0ff] rounded-lg py-2 px-20 relative top-0 -left-5"
                         transition={{ duration: 0.5 }}
                         initial={{opacity: 0,y: -100}}
                         animate={{opacity: 1,y: 0}}
@@ -110,7 +109,7 @@ export default function Header(){
                         <motion.p className="text-2xl font-semibold font-rubik place-self-center pr-4"
                             style={{cursor: "pointer"}}
                             whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
-                            onClick={() => {document.location.href = "/profile"}}
+                            onClick={() => {document.location.href = "/my-posts"}}
                             transition={{ duration: 0.3 }}
                         >
                             {username.charAt(0).toUpperCase() + username.slice(1)} 

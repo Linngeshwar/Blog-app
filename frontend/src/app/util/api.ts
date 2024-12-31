@@ -9,7 +9,7 @@ const getToken = () => {
                 return cookie[1];
             }
         }
-    }
+    }   
     return "";
 };
 

@@ -8,7 +8,7 @@ import EditPost from "../components/EditPost";
 import { deletePost,fetchPost,findUsername } from "../util/api";
 import { useSearchParams } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
-import { u } from "framer-motion/client";
+import CommentsButton from "../components/CommentsButton";
 
 
 interface Post {
@@ -75,19 +75,14 @@ export default function page(){
                 }
             };
             fetchData();
-        }else{
-            window.location.href = "/";
         }
     },[])
 
     useEffect(() => {
-        console.log(username + "-" + Post.author);
         if(username === Post.author){
             setShowEdit(true);
-            console.log("show edit");
         }else{
             setShowEdit(false);
-            console.log("hide edit");   
         }
     },[Post, username])
 
@@ -113,12 +108,12 @@ export default function page(){
     }
     return( 
         <motion.div 
-            className="w-full max-h-[70%] "
+            className="w-full max-h-[70%] mt-20"
         >
             <AnimatePresence>  
                 {editPost && <EditPost key={Post.id} id={Post.id} content={Post.content} title={Post.title} tags={Post.tags} handleEditPost={handleEditPost}/>}
             </AnimatePresence>
-            <motion.div className="flex flex-col justify-center place-self-center bg-[#ecc4ff] w-[70%] max-h-[70%] my-2 mr-2 ml- py-4 px-5 rounded-xl overflow-scroll"
+            <motion.div className="flex flex-col justify-center place-self-center bg-[#ecc4ff] w-[70%] max-h-[70%] mt-2 mb-10 mr-2 ml- py-4 px-5 rounded-xl overflow-scroll"
                             initial={{ opacity: 0, y: 200 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -100 }}
@@ -161,14 +156,15 @@ export default function page(){
                 <div className="flex-1 overflow-y-auto">
                     <p className="text-base font-rubik whitespace-break-spaces">{Post.content}</p>
                 </div>
-                <Votes 
-                        upvotes={Post.upvotes} 
-                        downvotes={Post.downvotes} 
-                        upvoted={Post.upvoted} 
-                        downvoted={Post.downvoted} 
-                        post={Post.id} 
-                    />
+                <div className="flex flex-row justify-between" onClick={(e) => {e.stopPropagation()}}>
+                    <Votes upvotes={Post.upvotes} downvotes={Post.downvotes} upvoted={Post.upvoted} downvoted={Post.downvoted} post={Post.id}/>
+                    <div onClick={(e) => {e.stopPropagation()}}>
+                        <CommentsButton PostID={Post.id}/>
+                    </div>
+                </div>
+                
             </motion.div>
+            <AnimatePresence>
             {confirmDelete && (
                 <motion.div 
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
@@ -204,6 +200,7 @@ export default function page(){
                     </motion.div>
                 </motion.div>
             )}
+            </AnimatePresence>
         </motion.div>
     )
 }

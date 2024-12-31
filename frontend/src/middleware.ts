@@ -6,13 +6,17 @@ export async function middleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
     const refresh = req.cookies.get("refresh")?.value;
     const path = req.nextUrl.pathname;
+    const query = req.nextUrl.searchParams;
 
     // Protected routes that require authentication
     const protectedRoutes = ['/','/posts', '/my-posts', '/profile', '/create-post'];
     
     // Routes that should redirect to posts if already authenticated
     const authRoutes = ['/', '/login', '/register'];
-
+    if(path === "/post" && !query.has("post")){
+        // console.log("Redirecting to posts");
+        return NextResponse.redirect(new URL("/posts", req.url));
+    }
     try {
         // If token exists, check its validity
         if (token) {
@@ -66,5 +70,5 @@ export async function middleware(req: NextRequest) {
 
 // Specify which routes this middleware should run on
 export const config = {
-    matcher: ['/', '/login', '/register', '/posts', '/my-posts', '/profile', '/create-post']
+    matcher: ['/', '/login', '/register', '/posts', '/my-posts', '/profile', '/create-post', '/post']
 }

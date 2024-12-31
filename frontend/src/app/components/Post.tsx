@@ -6,7 +6,7 @@ import { useState,useEffect } from "react";
 import { FaPen,FaTrash } from "react-icons/fa";
 import EditPost from "./EditPost";
 import { deletePost } from "../util/api";
-import PostPopUp from "./PostPopUp";
+import CommentsButton from "./CommentsButton";
 
 interface Post {
     id: number;
@@ -124,11 +124,15 @@ export default function Post(Post: Post){
                     onMouseDown={(e) => e.stopPropagation()} // Prevents propagation during text selection
                     onClick={(e) => e.stopPropagation()} 
                 >{Post.content}</p>
-                <div onClick={(e) => {e.stopPropagation()}}>
+                <div className="flex flex-row justify-between" onClick={(e) => {e.stopPropagation()}}>
                     <Votes upvotes={Post.upvotes} downvotes={Post.downvotes} upvoted={Post.upvoted} downvoted={Post.downvoted} post={Post.id}/>
+                    <div>
+                        <CommentsButton PostID={Post.id}/>
+                    </div>
                 </div>
             </motion.div>
             <AnimatePresence>
+            
             {confirmDelete && (
                 
                 <motion.div 
