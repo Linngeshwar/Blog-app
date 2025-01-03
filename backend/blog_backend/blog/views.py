@@ -118,7 +118,8 @@ class CommentViewSet(ModelViewSet):
     
     def create(self,request):
         serializer = CommentSerializer(data=request.data)
-        userID = request.data.get("user")
+        userID = request.data["user"]
+        print(userID)
         username = User.objects.get(pk=userID).username
         serializer.initial_data["user"] = username
         if serializer.is_valid():
@@ -163,6 +164,7 @@ class BlogPostViewSet(ModelViewSet):
         for s in serializer.data:
             s["upvotes"] = Upvote.objects.filter(post=s["id"]).count()
             s["downvotes"] = Downvote.objects.filter(post=s["id"]).count()
+            s["comments"] = Comment.objects.filter(post=s["id"]).count()
             # s["upvoted"] = BlogSerializer().get_upvoted(BlogPost.objects.get(pk=s["id"]))
             # s["downvoted"] = BlogSerializer().get_downvoted(BlogPost.objects.get(pk=s["id"]))
             

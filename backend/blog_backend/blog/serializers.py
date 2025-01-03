@@ -10,7 +10,7 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BlogPost
-        fields = ["id", "content", "title", "created_at", "author", "tags", "upvotes", "downvotes", "upvoted", "downvoted"]
+        fields = ["id", "content", "title", "created_at", "author", "tags", "upvotes", "downvotes", "upvoted", "downvoted", "comments"]
         extra_kwargs = {
             "upvotes": {"read_only": True},
             "downvotes": {"read_only": True},
