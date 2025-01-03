@@ -20,6 +20,7 @@ interface Post {
     downvotes: number;
     upvoted: boolean;
     downvoted: boolean;
+    comments: number;
 }
 
 export default function page(props: {tags: string}){
@@ -111,6 +112,7 @@ export default function page(props: {tags: string}){
                         downvotes={post.downvotes} 
                         upvoted={post.upvoted}
                         downvoted={post.downvoted}
+                        comments={post.comments}
                     />
                 ))}
             </AnimatePresence>

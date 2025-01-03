@@ -9,6 +9,8 @@ import { deletePost,fetchPost,findUsername } from "../util/api";
 import { useSearchParams } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
 import CommentsButton from "../components/CommentsButton";
+import Comments from "../components/Comments";
+import AddComments from "../components/AddComments";
 
 
 interface Post {
@@ -24,9 +26,17 @@ interface Post {
     downvotes: number;
     upvoted: boolean;
     downvoted: boolean;
+    comments: Comments[];
+}
+interface Comments{
+    id: number;
+    content: string;
+    user: string;
+    created_at: string;
+    post: number;
 }
 
-export default function page(){
+export default function Page(){
     const searchParams = useSearchParams();
     const postID = searchParams.get("post");
     const pathName = usePathname();
@@ -46,7 +56,8 @@ export default function page(){
         upvotes: 0,
         downvotes: 0,
         upvoted: false,
-        downvoted: false
+        downvoted: false,
+        comments: []
     });
 
     useEffect(() => {
@@ -69,6 +80,7 @@ export default function page(){
                     const data = await fetchPost(Number(postID));
                     if (data) {
                         setPost(data.data);
+                        console.log(data.data);
                     }
                 } catch (e) {
                     console.log(e);
@@ -108,7 +120,7 @@ export default function page(){
     }
     return( 
         <motion.div 
-            className="w-full max-h-[70%] mt-20"
+            className="w-full max-h-[70%] mt-32"
         >
             <AnimatePresence>  
                 {editPost && <EditPost key={Post.id} id={Post.id} content={Post.content} title={Post.title} tags={Post.tags} handleEditPost={handleEditPost}/>}
@@ -159,11 +171,27 @@ export default function page(){
                 <div className="flex flex-row justify-between" onClick={(e) => {e.stopPropagation()}}>
                     <Votes upvotes={Post.upvotes} downvotes={Post.downvotes} upvoted={Post.upvoted} downvoted={Post.downvoted} post={Post.id}/>
                     <div onClick={(e) => {e.stopPropagation()}}>
-                        <CommentsButton PostID={Post.id}/>
+                        <CommentsButton PostID={Post.id} comments={Post.comments.length}/>
                     </div>
-                </div>
-                
+                </div>      
             </motion.div>
+                <motion.div 
+                    id="comments" 
+                    className="flex flex-col justify-center place-self-center bg-container w-[70%] py-4 px-5 rounded-xl"
+                    
+                >
+                            <AddComments PostID={Post.id}/>
+                        {Post.comments.map((comment) => (
+                            <Comments 
+                                key={comment.id} 
+                                id={comment.id} 
+                                content={comment.content} 
+                                user={comment.user} 
+                                created_at={comment.created_at} 
+                                post={comment.post}
+                            />
+                        ))}
+                </motion.div>                    
             <AnimatePresence>
             {confirmDelete && (
                 <motion.div 

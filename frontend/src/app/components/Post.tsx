@@ -21,6 +21,7 @@ interface Post {
     downvotes: number;
     upvoted: boolean;
     downvoted: boolean;
+    comments: number;
 }
 
 export default function Post(Post: Post){
@@ -127,7 +128,7 @@ export default function Post(Post: Post){
                 <div className="flex flex-row justify-between" onClick={(e) => {e.stopPropagation()}}>
                     <Votes upvotes={Post.upvotes} downvotes={Post.downvotes} upvoted={Post.upvoted} downvoted={Post.downvoted} post={Post.id}/>
                     <div>
-                        <CommentsButton PostID={Post.id}/>
+                        <CommentsButton PostID={Post.id} comments={Post.comments}/>
                     </div>
                 </div>
             </motion.div>
