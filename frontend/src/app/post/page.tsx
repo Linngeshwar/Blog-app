@@ -120,7 +120,7 @@ export default function Page(){
     }
     return( 
         <motion.div 
-            className="w-full max-h-[70%] mt-32"
+            className="w-full place-self-start mt-8"
         >
             <AnimatePresence>  
                 {editPost && <EditPost key={Post.id} id={Post.id} content={Post.content} title={Post.title} tags={Post.tags} handleEditPost={handleEditPost}/>}
@@ -128,7 +128,7 @@ export default function Page(){
             <motion.div className="flex flex-col justify-center place-self-center bg-[#ecc4ff] w-[70%] max-h-[70%] mt-2 mb-10 mr-2 ml- py-4 px-5 rounded-xl overflow-scroll"
                             initial={{ opacity: 0, y: 200 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -100 }}
+                            exit={{ opacity: 0, y: -100 }} 
                             transition={{ duration: 0.5 }}
                             onClick={(e) => {e.stopPropagation()}}
             >
@@ -168,7 +168,7 @@ export default function Page(){
                 <div className="flex-1 overflow-y-auto">
                     <p className="text-base font-rubik whitespace-break-spaces">{Post.content}</p>
                 </div>
-                <div className="flex flex-row justify-between" onClick={(e) => {e.stopPropagation()}}>
+                <div id="votesAndComments" className="flex flex-row justify-between flex-shrink-0" onClick={(e) => {e.stopPropagation()}}>
                     <Votes upvotes={Post.upvotes} downvotes={Post.downvotes} upvoted={Post.upvoted} downvoted={Post.downvoted} post={Post.id}/>
                     <div onClick={(e) => {e.stopPropagation()}}>
                         <CommentsButton PostID={Post.id} comments={Post.comments.length}/>
@@ -177,8 +177,10 @@ export default function Page(){
             </motion.div>
                 <motion.div 
                     id="comments" 
-                    className="flex flex-col justify-center place-self-center bg-container w-[70%] py-4 px-5 rounded-xl"
-                    
+                    className="flex flex-col justify-center place-self-center bg-container w-[70%] py-4 mb-8 px-5 rounded-xl"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                 >
                             <AddComments PostID={Post.id}/>
                         {Post.comments.map((comment) => (

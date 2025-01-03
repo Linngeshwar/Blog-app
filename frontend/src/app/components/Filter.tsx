@@ -107,6 +107,12 @@ export default function Filter() {
         document.location.href = `/posts?tags=${tags}&keywords=${keywords}`;
     }
 
+    const clearFilter = () => {
+        setSelectedTags([]);
+        setKeywords("");
+        document.location.href = "/posts";
+    }
+
     return (
         <>
             {(pathName === "/my-posts" || pathName === "/posts") && (
@@ -194,7 +200,7 @@ export default function Filter() {
                                 <motion.button
                                     className="bg-[#ecc4ff] w-[95%] m-2 py-2 px-4 rounded-md place-self-center outline-none font-rubik transition-colors duration-300 ease-in-out font-semibold hover:bg-[#d16dff] hover:text-white"
                                     variants={itemVariants}
-                                    onClick={() => setSelectedTags([])}
+                                    onClick={clearFilter}
                                 >
                                     Clear
                                 </motion.button>

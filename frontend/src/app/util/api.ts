@@ -274,3 +274,15 @@ export const fetchPost = async (id:number) => {
         }
     }
 }
+
+export const addComment = async (content:string,post:number,user:string) => {
+    try{
+        return await api.post("comments/",{content,post,user});
+    }catch(err){
+        if(axios.isAxiosError(err)){
+            return err.response;
+        }else{
+            console.log(err);
+        }
+    }
+}

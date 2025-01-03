@@ -19,6 +19,14 @@ interface Post {
     downvotes: number;
     upvoted: boolean;
     downvoted: boolean;
+    comments: Comments[];
+}
+interface Comments{
+    id: number;
+    content: string;
+    user: string;
+    created_at: string;
+    post: number;
 }
 
 export default function Page() {
@@ -105,6 +113,7 @@ export default function Page() {
                         downvotes={post.downvotes} 
                         upvoted={post.upvoted}
                         downvoted={post.downvoted}
+                        comments={post.comments.length}
                     />
                 ))}
             </AnimatePresence>

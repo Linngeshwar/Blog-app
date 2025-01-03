@@ -56,7 +56,7 @@ export default function Header(){
                         whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
                         transition={{ duration: 0.5 }} 
                         onClick={() => {document.location.href = "/"}}
-                        >Blog Site
+                        >Blog App
                     </motion.p>                    
                     {pathName === "/login" && <RegisterButton />}
                     {pathName === "/register" && <LogInButton />}
@@ -74,7 +74,7 @@ export default function Header(){
                             whileHover={{ scale: 1.1 ,color: "#cc5fff"}}
                             transition={{ duration: 0.5 }} 
                             onClick={() => {document.location.href = "/posts"}}
-                            >Blog Site
+                            >Blog App
                         </motion.p>  
                     </AnimatePresence>
                     <motion.nav className="flex flex-row  bg-[#f0d0ff] rounded-lg py-2 px-20 relative top-0 -left-5"

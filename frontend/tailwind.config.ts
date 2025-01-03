@@ -21,17 +21,27 @@ const config: Config = {
       },
       keyframes: {
         becomeTextArea:{
-            '0%': { height: '' },
-            '100%': { height : '100px' },
+            '0%': { height: '40px' },
+            '100%': { height : '' },
         },
         turnBackToInput:{
             '0%': { height: '100px' },
             '100%': { height : '' },
-        }
+        },
+        fadeIn: {
+          '0%': { opacity: "0" },
+          '100%': { opacity: "1" },
+        },
+        fadeOut: {
+          '0%': { opacity: "1" },
+          '100%': { opacity: "0" },
+        },
       },
       animation: {
-        becomeTextArea: 'becomeTextArea 0.5s ease-out',
-        turnBackToInput: 'turnBackToInput 0.5s ease-out',
+        becomeTextArea: 'becomeTextArea 0.3s ease-out',
+        turnBackToInput: 'turnBackToInput 0.3s ease-out',
+        fadeIn: 'fadeIn 0.3s ease-out',
+        fadeOut: 'fadeOut 5s ease-out',
       }
     },
   },

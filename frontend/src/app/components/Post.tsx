@@ -121,7 +121,7 @@ export default function Post(Post: Post){
                         </div>
                     </div>
                 </div>
-                <p className="text-base font-rubik line-clamp-5"
+                <p className="text-base font-rubik line-clamp-5 whitespace-break-spaces"
                     onMouseDown={(e) => e.stopPropagation()} // Prevents propagation during text selection
                     onClick={(e) => e.stopPropagation()} 
                 >{Post.content}</p>
