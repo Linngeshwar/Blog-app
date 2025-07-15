@@ -120,7 +120,7 @@ export default function page(){
                         animate={{y:0, opacity: 1}}
                         transition={{duration: 0.3}}
                     >
-                        <p className="text-black font-rubik text-sm mt-4">Don't have an account? 
+                        <p className="text-black font-rubik text-sm mt-4">Don&#39;t have an account? 
                             <motion.a href="/register" className="mx-3 p-1 text-[#cc5fff] rounded-md"
                             whileHover={{ scale: 1.05 , backgroundColor: "#cc5fff", color: "white"}}
                             transition={{duration: 0.5}}

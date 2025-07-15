@@ -1,7 +1,6 @@
 'use client'
 import { AnimatePresence, motion } from "framer-motion";
 import Votes from "../components/Votes";
-import { usePathname } from "next/navigation";
 import { useState,useEffect } from "react";
 import { FaPen,FaTrash } from "react-icons/fa";
 import EditPost from "../components/EditPost";
@@ -39,7 +38,6 @@ interface Comments{
 export default function Page(){
     const searchParams = useSearchParams();
     const postID = searchParams.get("post");
-    const pathName = usePathname();
     const [showEdit,setShowEdit] = useState(false);
     const [editPost,setEditPost] = useState(false);
     const [confirmDelete,setConfirmDelete] = useState(false)
@@ -88,7 +86,7 @@ export default function Page(){
             };
             fetchData();
         }
-    },[])
+    },[postID])
 
     useEffect(() => {
         if(username === Post.author){
@@ -201,7 +199,7 @@ export default function Page(){
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={(e) => {toggleDelete()}}
+                    onClick={() => {toggleDelete()}}
                 >
                     <motion.div className="w-[40%] bg-[#ecc4ff] rounded-xl p-2 m-2 z-20"
                         initial={{ opacity: 0, y: 200 }}

@@ -23,14 +23,14 @@ interface Post {
     comments: number;
 }
 
-export default function page(props: {tags: string}){
+export default function Page(props: {tags: string}){
 
     const searchParams = useSearchParams();
     const tagString = searchParams.get("tags");
     const tags = tagString ? tagString.split(",").map(Number) : [];
     const keywordsString = searchParams.get("keywords");
     const keywords = keywordsString ? keywordsString.split(/\s+/) : [];
-    keywords.forEach((keyword, index) => {
+    keywords.forEach((keyword) => {
         keyword.toLowerCase();
     });
     const [posts,setPosts] = useState<Post[]>([]);  
@@ -97,12 +97,13 @@ export default function page(props: {tags: string}){
             }
         )}
     },[]);
-
+    
     return(
         <div className="w-full place-self-start mt-8">
             <AnimatePresence>
                 {posts.map((post) => (
                     <Post 
+                        key={post.id}
                         id={post.id} 
                         title={post.title} 
                         content={post.content} 

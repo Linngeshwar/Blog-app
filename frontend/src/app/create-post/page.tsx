@@ -9,7 +9,7 @@ interface Tag {
     name : string;
 }
 
-export default function page(){
+export default function Page(){
     const [tags,setTags] = useState<Tag[]>([]);
     const [userID,setUserID] = useState(0);
     useEffect(() => {

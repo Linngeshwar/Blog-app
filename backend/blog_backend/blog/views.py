@@ -118,8 +118,8 @@ class CommentViewSet(ModelViewSet):
     
     def create(self,request):
         serializer = CommentSerializer(data=request.data)
+        print(request.data)
         userID = request.data["user"]
-        print(userID)
         username = User.objects.get(pk=userID).username
         serializer.initial_data["user"] = username
         if serializer.is_valid():
