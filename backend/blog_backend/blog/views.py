@@ -10,14 +10,18 @@ from .serializers import UpvoteSerializer,DownvoteSerializer
 from django.contrib.auth.models import User
 from .permissions import IsAuthor
 from rest_framework.permissions import AllowAny
+from django.db.models import Count, Prefetch
 # Create your views here.\
     
 class UpvoteViewSet(ModelViewSet):
     serializer_class = UpvoteSerializer
-    queryset = Upvote.objects.all()
+    queryset = Upvote.objects.select_related('user', 'post')
     
     def list(self,request):
-        queryset = Upvote.objects.filter(user=request.user,post=request.data.get("post"))
+        queryset = Upvote.objects.select_related('user', 'post').filter(
+            user=request.user, 
+            post=request.data.get("post")
+        )
         serializer = UpvoteSerializer(queryset,many=True)
         return Response(serializer.data,status=200)
     
@@ -42,7 +46,10 @@ class UpvoteViewSet(ModelViewSet):
         
     @action(detail=False, methods=['post'])
     def del_upvote(self, request, *args, **kwargs):
-        queryset = Upvote.objects.filter(user=request.user, post=request.data.get("post"))
+        queryset = Upvote.objects.select_related('user', 'post').filter(
+            user=request.user, 
+            post=request.data.get("post")
+        )
         try:
             upvote = queryset.get()
             upvote.delete()
@@ -52,10 +59,10 @@ class UpvoteViewSet(ModelViewSet):
 
 class DownvoteViewSet(ModelViewSet):
     serializer_class = DownvoteSerializer
-    queryset = Downvote.objects.all()
+    queryset = Downvote.objects.select_related('user', 'post')
     
     def list(self,request):
-        queryset = Downvote.objects.all()
+        queryset = Downvote.objects.select_related('user', 'post').all()
         serializer = DownvoteSerializer(queryset,many=True)
         return Response(serializer.data,status=200)
     
@@ -80,7 +87,10 @@ class DownvoteViewSet(ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def del_downvote(self,request):
-        queryset = Downvote.objects.filter(user=request.user,post=request.data.get("post"))
+        queryset = Downvote.objects.select_related('user', 'post').filter(
+            user=request.user,
+            post=request.data.get("post")
+        )
         try:
             downvote = queryset.get()
             downvote.delete()
@@ -109,98 +119,102 @@ class TagViewSet(ModelViewSet):
     
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.select_related('user', 'post').all()
     
-    def list(self,request):
-        queryset = Comment.objects.all()
-        serializer = CommentSerializer(queryset,many=True)
-        return Response(serializer.data,status=200)
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = CommentSerializer(queryset, many=True)
+        return Response(serializer.data, status=200)
     
-    def create(self,request):
+    def create(self, request):
         serializer = CommentSerializer(data=request.data)
-        print(request.data)
-        userID = request.data["user"]
-        username = User.objects.get(pk=userID).username
-        serializer.initial_data["user"] = username
         if serializer.is_valid():
+            # The user field is now a ForeignKey, so we can save directly
             serializer.save()
-            return Response(serializer.data,status=201)
-        return Response(serializer.errors,status=400)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
     
-    def update(self,request,pk=None):
+    def update(self, request, pk=None):
         try:
-            queryset = Comment.objects.all()
-            comment = queryset.get(pk=pk)
+            comment = self.get_queryset().get(pk=pk)
         except Comment.DoesNotExist:
-            return Response({"error":"Comment not found"},status=404)
-        serializer = CommentSerializer(comment,data=request.data)
+            return Response({"error": "Comment not found"}, status=404)
+        serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,status=200)
-        return Response(serializer.errors,status=400)
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
     
-    def destroy(self,request,pk=None):
-        queryset = Comment.objects.all()
-        comment = queryset.get(pk=pk)
-        comment.delete()
-        return Response("Comment deleted",status=204)
+    def destroy(self, request, pk=None):
+        try:
+            comment = self.get_queryset().get(pk=pk)
+            comment.delete()
+            return Response("Comment deleted", status=204)
+        except Comment.DoesNotExist:
+            return Response({"error": "Comment not found"}, status=404)
 
 class UserDetailView(ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.prefetch_related('blog_posts', 'comments', 'upvotes', 'downvotes')
     serializer_class = UserDetailSerializer
     
     def list(self,request,pk=None):
-        queryset = User.objects.get(pk=pk)
+        queryset = User.objects.prefetch_related('blog_posts', 'comments', 'upvotes', 'downvotes').get(pk=pk)
         serializer = UserDetailSerializer(queryset)
         return Response(serializer.data,status=200)
 
 class BlogPostViewSet(ModelViewSet):
-    queryset = BlogPost.objects.all()
+    queryset = BlogPost.objects.select_related('author').prefetch_related(
+        'tags', 
+        'comments__user',
+        Prefetch('upvotes', queryset=Upvote.objects.select_related('user')),
+        Prefetch('downvotes', queryset=Downvote.objects.select_related('user'))
+    ).annotate(
+        upvotes_count=Count('upvotes', distinct=True),
+        downvotes_count=Count('downvotes', distinct=True),
+        comments_count=Count('comments', distinct=True)
+    )
     serializer_class = BlogSerializer
 
-    def list(self,request):
-        queryset = BlogPost.objects.all()
+    def list(self, request):
+        queryset = self.get_queryset()
         serializer = BlogSerializer(queryset, many=True, context={"request": request})
-        for s in serializer.data:
-            s["upvotes"] = Upvote.objects.filter(post=s["id"]).count()
-            s["downvotes"] = Downvote.objects.filter(post=s["id"]).count()
-            s["comments"] = Comment.objects.filter(post=s["id"]).count()
-            # s["upvoted"] = BlogSerializer().get_upvoted(BlogPost.objects.get(pk=s["id"]))
-            # s["downvoted"] = BlogSerializer().get_downvoted(BlogPost.objects.get(pk=s["id"]))
-            
-        return Response(serializer.data,status=200)
+        # Add counts from annotations - no more N+1 queries!
+        for i, post in enumerate(queryset):
+            serializer.data[i]["upvotes"] = post.upvotes_count
+            serializer.data[i]["downvotes"] = post.downvotes_count
+            serializer.data[i]["comments"] = post.comments_count
+        return Response(serializer.data, status=200)
     
-    def create(self,request):
+    def create(self, request):
         tags = request.data["tags"].split()
         tag_objects = [Tag.objects.get_or_create(name=tag)[0] for tag in tags]
         serializer = BlogSerializer(data=request.data)
-        author = User.objects.get(pk=request.data["author"])
         if serializer.is_valid():
-            serializer.save(tags=tag_objects,author=author)
-            return Response(serializer.data,status=201)
-        return Response(serializer.errors,status=400)
+            # Use the author from request data directly since it's now a ForeignKey
+            serializer.save(tags=tag_objects)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
     
-    def update(self,request,pk=None):
+    def update(self, request, pk=None):
         tags = request.data["tags"].split()
         tag_objects = [Tag.objects.get_or_create(name=tag)[0] for tag in tags]
         try:
-            queryset = BlogPost.objects.all()
-            post = queryset.get(pk=pk)
+            post = self.get_queryset().get(pk=pk)
         except BlogPost.DoesNotExist:
-            return Response({"error":"Post not found"},status=404)
-        serializer = BlogSerializer(post,data=request.data)
-        # author = User.objects.get(pk=request.data["author"])
-        # print(author)
+            return Response({"error": "Post not found"}, status=404)
+        serializer = BlogSerializer(post, data=request.data)
         if serializer.is_valid():
             serializer.save(tags=tag_objects)
-            return Response(serializer.data,status=200)
-        return Response(serializer.errors,status=400)
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
     
-    def destroy(self,request,pk=None):
-        queryset = BlogPost.objects.all()
-        post = queryset.get(pk=pk)
-        post.delete()
-        return Response("Post deleted",status=204)
+    def destroy(self, request, pk=None):
+        try:
+            post = self.get_queryset().get(pk=pk)
+            post.delete()
+            return Response("Post deleted", status=204)
+        except BlogPost.DoesNotExist:
+            return Response({"error": "Post not found"}, status=404)
     
     @action(detail=True, methods=['get'])
     def user_posts(self, request, pk=None):
@@ -209,23 +223,39 @@ class BlogPostViewSet(ModelViewSet):
         except User.DoesNotExist:
             return Response({"error": "Author not found"}, status=404)
         
-        posts = BlogPost.objects.filter(author=author)
+        posts = BlogPost.objects.filter(author=author).select_related('author').prefetch_related(
+            'tags', 
+            'comments__user'
+        ).annotate(
+            upvotes_count=Count('upvotes', distinct=True),
+            downvotes_count=Count('downvotes', distinct=True),
+            comments_count=Count('comments', distinct=True)
+        )
         serializer = BlogSerializer(posts, many=True, context={"request": request})
-        for s in serializer.data:
-            s["upvotes"] = Upvote.objects.filter(post=s["id"]).count()
-            s["downvotes"] = Downvote.objects.filter(post=s["id"]).count()
+        # Add counts from annotations - no more N+1 queries!
+        for i, post in enumerate(posts):
+            serializer.data[i]["upvotes"] = post.upvotes_count
+            serializer.data[i]["downvotes"] = post.downvotes_count
         return Response(serializer.data, status=200)
     
     @action(detail=True, methods=['get'])
     def get_post(self, request, pk=None):
         try:
-            post = BlogPost.objects.get(pk=pk)
+            post = BlogPost.objects.select_related('author').prefetch_related(
+                'tags', 
+                'comments__user'
+            ).annotate(
+                upvotes_count=Count('upvotes', distinct=True),
+                downvotes_count=Count('downvotes', distinct=True),
+                comments_count=Count('comments', distinct=True)
+            ).get(pk=pk)
         except BlogPost.DoesNotExist:
             return Response({"error": "Post not found"}, status=404)
         serializer = BlogSerializer(post, context={"request": request})
         data = serializer.data
-        data["upvotes"] = Upvote.objects.filter(post=pk).count()
-        data["downvotes"] = Downvote.objects.filter(post=pk).count()
+        data["upvotes"] = post.upvotes_count
+        data["downvotes"] = post.downvotes_count
+        data["comments"] = post.comments_count
         print(data["upvotes"])
         return Response(data, status=200)
     

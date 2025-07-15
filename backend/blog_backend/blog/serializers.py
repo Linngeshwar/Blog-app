@@ -7,36 +7,31 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 class BlogSerializer(serializers.ModelSerializer):
     upvoted = serializers.SerializerMethodField()
     downvoted = serializers.SerializerMethodField()
+    author_username = serializers.CharField(source='author.username', read_only=True)
 
     class Meta:
         model = BlogPost
-        fields = ["id", "content", "title", "created_at", "author", "tags", "upvotes", "downvotes", "upvoted", "downvoted", "comments"]
+        fields = ["id", "content", "title", "created_at", "author", "author_username", "tags", "upvotes", "downvotes", "upvoted", "downvoted", "comments"]
         extra_kwargs = {
             "upvotes": {"read_only": True},
             "downvotes": {"read_only": True},
             "upvoted": {"read_only": True},
             "downvoted": {"read_only": True},
+            "author": {"write_only": True},
         }
         depth = 1
 
     def get_upvoted(self, obj):
         request = self.context.get('request')
-        bool = False
-        # print(request.user)
         if request and request.user.is_authenticated:
-            bool = Upvote.objects.filter(post=obj, user=request.user).exists()
-            # print(Upvote.objects.filter(post=obj, user=request.user))
-        return bool
+            return Upvote.objects.filter(post=obj, user=request.user).exists()
+        return False
 
-    
     def get_downvoted(self, obj):
         request = self.context.get('request')
-        bool = False
-        # print(request.user)
         if request and request.user.is_authenticated:
-            bool = Downvote.objects.filter(post=obj, user=request.user).exists()
-            # print(Downvote.objects.filter(post=obj, user=request.user))
-        return bool
+            return Downvote.objects.filter(post=obj, user=request.user).exists()
+        return False
         
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,9 +39,14 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ["name","id"]
         
 class CommentSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(source='user.username', read_only=True)
+    
     class Meta:
         model = Comment
-        fields = "__all__"
+        fields = ["id", "content", "created_at", "post", "user", "user_username"]
+        extra_kwargs = {
+            "user": {"write_only": True},
+        }
         
         
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
